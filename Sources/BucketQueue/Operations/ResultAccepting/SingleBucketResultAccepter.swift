@@ -29,7 +29,7 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
         try bucketQueueHolder.performWithExclusiveAccess {
-            logger.debug("Validating result for \(bucketId) from \(workerId): \(testingResult)")
+            logger.trace("Validating result for \(bucketId) from \(workerId): \(testingResult)")
             
             guard let dequeuedBucket = previouslyDequeuedBucket(bucketId: bucketId, workerId: workerId) else {
                 throw BucketQueueAcceptanceError.noDequeuedBucket(bucketId: bucketId, workerId: workerId)
@@ -51,7 +51,7 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
             )
             
             bucketQueueHolder.remove(dequeuedBucket: dequeuedBucket)
-            logger.debug("Accepted result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(workerId)")
+            logger.trace("Accepted result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(workerId)")
             
             try bucketEnqueuer.enqueue(buckets: acceptResult.bucketsToReenqueue)
             

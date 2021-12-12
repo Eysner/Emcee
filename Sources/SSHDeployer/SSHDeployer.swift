@@ -42,7 +42,7 @@ public final class SSHDeployer: Deployer {
         do {
             try deploy(pathToDeployable: pathToDeployable)
         } catch {
-            log(destination, "Failed to deploy to this destination with error: \(error)")
+            logger.error("Failed to deploy to \(destination.host): \(error)")
             throw error
         }
     }
@@ -179,6 +179,6 @@ public final class SSHDeployer: Deployer {
         file: String = #file,
         line: UInt = #line
     ) {
-        logger.debug("\(destination.host): \(text)", file: file, line: line)
+        logger.trace("\(destination.host): \(text)", file: file, line: line)
     }
 }

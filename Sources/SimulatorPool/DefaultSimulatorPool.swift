@@ -41,7 +41,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     public func allocateSimulatorController() throws -> SimulatorController {
         return try syncQueue.sync {
             if let controller = controllers.popLast() {
-                logger.debug("Allocated simulator: \(controller)")
                 controller.simulatorBecameBusy()
                 return controller
             }
@@ -50,7 +49,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
                 temporaryFolder: tempFolder,
                 testDestination: testDestination
             )
-            logger.debug("Allocated new simulator: \(controller)")
             controller.simulatorBecameBusy()
             return controller
         }
@@ -59,14 +57,12 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     public func free(simulatorController: SimulatorController) {
         syncQueue.sync {
             controllers.append(simulatorController)
-            logger.debug("Freed simulator: \(simulatorController)")
             simulatorController.simulatorBecameIdle()
         }
     }
     
     public func deleteSimulators() {
         syncQueue.sync {
-            logger.debug("\(self): deleting simulators")
             controllers.forEach {
                 do {
                     try $0.deleteSimulator()
@@ -79,7 +75,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     
     public func shutdownSimulators() {
         syncQueue.sync {
-            logger.debug("\(self): deleting simulators")
             controllers.forEach {
                 do {
                     try $0.shutdownSimulator()

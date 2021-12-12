@@ -64,11 +64,11 @@ public final class TestsEnqueuer {
             )
         )
         
-        logger.info("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
+        logger.trace("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
         for bucket in buckets {
-            logger.debug("-- \(bucket) with tests:")
+            logger.trace("-- \(bucket) with tests:")
             for testEntries in bucket.payload.testEntries {
-                logger.debug("-- -- \(testEntries)")
+                logger.trace("-- -- \(testEntries)")
             }
         }
     }

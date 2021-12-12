@@ -52,7 +52,7 @@ public final class RequestSenderImpl: RequestSender {
         callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
     ) throws {
         let url = try createUrl(pathWithSlash: request.pathWithLeadingSlash)
-        logger.debug("Sending request to \(url)")
+        logger.trace("Sending request to \(url)")
         
         guard !isClosed else {
             throw RequestSenderError.sessionIsClosed(url)
@@ -80,9 +80,9 @@ public final class RequestSenderImpl: RequestSender {
         let jsonData = try JSONEncoder.pretty().encode(payload)
         
         if let stringJson = String(data: jsonData, encoding: .utf8) {
-            logger.debug("Payload: \(stringJson)")
+            logger.trace("Payload: \(stringJson)")
         } else {
-            logger.debug("Unable to get string for payload data \(jsonData.count) bytes")
+            logger.trace("Unable to get string for payload data \(jsonData.count) bytes")
         }
 
         return jsonData
@@ -98,7 +98,7 @@ public final class RequestSenderImpl: RequestSender {
         
         let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
             if let error = error {
-                logger.debug("Failed to perform request to \(url): \(error)")
+                logger.error("Failed to perform request to \(url): \(error)")
                 callbackQueue.async { callback(.error(.communicationError(error))) }
                 return
             }
@@ -119,14 +119,13 @@ public final class RequestSenderImpl: RequestSender {
             if let data = data {
                 do {
                     let decodedObject = try JSONDecoder().decode(ResponseType.self, from: data)
-                    logger.debug("Successfully decoded object from response of request to \(url): \(decodedObject)")
                     callbackQueue.async { callback(.success(decodedObject)) }
                 } catch {
-                    logger.debug("Failed to decode object from response of request to \(url): \(error)")
+                    logger.error("Failed to decode object from response of request to \(url): \(error)")
                     callbackQueue.async { callback(.error(.parseError(error, data))) }
                 }
             } else {
-                logger.debug("Failed to process response from request to \(url): response has no data")
+                logger.error("Failed to process response from request to \(url): response has no data")
                 callbackQueue.async { callback(.error(.noData)) }
             }
         }

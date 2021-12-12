@@ -66,13 +66,13 @@ public final class Plugin {
         let jsonReader = JSONReader(inputStream: jsonInputStream, eventStream: jsonStreamToEventBusAdapter)
         jsonReaderQueue.async {
             do {
-                self.logger.debug("Starting JSON stream parser")
+                self.logger.trace("Starting JSON stream parser")
                 try jsonReader.start()
             } catch {
                 self.jsonStreamHasFinished = true
                 self.logger.error("JSON stream error: \(error)")
             }
-            self.logger.debug("JSON stream parser finished")
+            self.logger.trace("JSON stream parser finished")
         }
     }
     

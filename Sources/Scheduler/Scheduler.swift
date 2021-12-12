@@ -78,13 +78,12 @@ public final class Scheduler {
                 return
             }
             guard let bucket = self.schedulerDataSource?.nextBucket() else {
-                self.rootLogger.debug("Data Source returned no bucket")
+                self.rootLogger.trace("Data Source returned no bucket. Will stop polling for new buckets.")
                 return
             }
             let logger = self.rootLogger.with(
                 analyticsConfiguration: bucket.analyticsConfiguration
             )
-            logger.debug("Data Source returned bucket: \(bucket)")
             self.runTestsFromFetchedBucket(bucket: bucket, dateProvider: dateProvider, logger: logger)
         }
     }
@@ -98,6 +97,7 @@ public final class Scheduler {
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
                 do {
+                    logger.trace("Executing bucket: \(bucket)")
                     let testingResult = self.execute(bucket: bucket, dateProvider: dateProvider, logger: logger)
                     try self.resourceSemaphore.release(.of(runningTests: 1))
                     self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
@@ -174,11 +174,11 @@ public final class Scheduler {
         for retryNumber in 0 ..< bucket.payload.testExecutionBehavior.numberOfRetries {
             let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
             if failedTestEntriesAfterLastRun.isEmpty {
-                logger.debug("No failed tests after last retry, so nothing to run.")
+                logger.trace("No failed tests after last retry, so nothing to run.")
                 break
             }
-            logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-            logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(bucket.payload.testExecutionBehavior.numberOfRetries) attempts")
+            logger.trace("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
+            logger.trace("Retrying them, attempt #\(retryNumber + 1) of maximum \(bucket.payload.testExecutionBehavior.numberOfRetries) attempts")
             lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun, logger: logger)
             results.append(lastRunResults)
         }

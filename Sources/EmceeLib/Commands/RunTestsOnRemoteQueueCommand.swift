@@ -176,7 +176,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                     uniqueIdentifierGenerator: try di.get()
                 )
                 try remoteQueueStarter.deployAndStart()
-                logger.debug("Started queue on \(queueServerDeploymentDestination.host)")
+                logger.info("Started queue on \(queueServerDeploymentDestination.host)")
                 // The code starts only one queue.
                 // Since queue is started, return from function to avoid starting any additional queues.
                 return
