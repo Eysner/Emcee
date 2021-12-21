@@ -77,7 +77,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
             )
         ]
         
-        switch dequeuedBucket.enqueuedBucket.bucket.payload {
+        switch dequeuedBucket.enqueuedBucket.bucket.payloadContainer {
         case .runIosTests(let runIosTestsPayload):
             bucketAndTestMetrics.append(
                 DequeueTestsMetric(

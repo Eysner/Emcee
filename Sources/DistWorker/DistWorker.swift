@@ -163,7 +163,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                     SchedulerBucket(
                         analyticsConfiguration: fetchedBucket.analyticsConfiguration,
                         bucketId: fetchedBucket.bucketId,
-                        bucketPayload: fetchedBucket.payload
+                        bucketPayloadContainer: fetchedBucket.payloadContainer
                     )
                 )
             }

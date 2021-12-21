@@ -94,7 +94,7 @@ final class QueueServerTests: XCTestCase {
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
         let bucket = BucketFixtures.createBucket(
             bucketId: fixedBucketId,
-            bucketPayload: .runIosTests(
+            bucketPayloadContainer: .runIosTests(
                 BucketFixtures.createRunIosTestsPayload(
                     testEntries: [testEntry]
                 )

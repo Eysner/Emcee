@@ -66,7 +66,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             testEntries: testEntries
         )
         let bucket = BucketFixtures.createBucket(
-            bucketPayload: .runIosTests(runIosTestsPayload)
+            bucketPayloadContainer: .runIosTests(runIosTestsPayload)
         )
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
@@ -90,7 +90,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         
         assert { enqueuedBuckets.count } equals: { 1 }
             
-        assert { enqueuedBuckets[0].payload } equals: {
+        assert { enqueuedBuckets[0].payloadContainer } equals: {
             .runIosTests(runIosTestsPayload)
         }
     }
@@ -106,7 +106,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             testEntries: testEntries
         )
         let bucket = BucketFixtures.createBucket(
-            bucketPayload: .runIosTests(runIosTestsPayload)
+            bucketPayloadContainer: .runIosTests(runIosTestsPayload)
         )
         workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
         
@@ -129,7 +129,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         
         assert { enqueuedBuckets.count } equals: { 1 }
         
-        assert { enqueuedBuckets[0].payload } equals: {
+        assert { enqueuedBuckets[0].payloadContainer } equals: {
             .runIosTests(runIosTestsPayload)
         }
     }

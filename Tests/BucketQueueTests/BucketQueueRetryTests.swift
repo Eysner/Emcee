@@ -37,8 +37,8 @@ final class BucketQueueRetryTests: XCTestCase {
             bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anotherWorker)
         }
         XCTAssertEqual(
-            dequeuedBucket.enqueuedBucket.bucket.payload,
-            bucketWithTwoRetires.payload
+            dequeuedBucket.enqueuedBucket.bucket.payloadContainer,
+            bucketWithTwoRetires.payloadContainer
         )
     }
     
@@ -120,7 +120,7 @@ final class BucketQueueRetryTests: XCTestCase {
             bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anotherWorker)
         }
         assert { dequeuedBucket.workerId } equals: { anotherWorker }
-        assert { dequeuedBucket.enqueuedBucket.bucket.payload } equals: { bucket.payload }
+        assert { dequeuedBucket.enqueuedBucket.bucket.payloadContainer } equals: { bucket.payloadContainer }
     }
     
     private let firstWorker: WorkerId = "firstWorker"
@@ -172,7 +172,7 @@ final class BucketQueueRetryTests: XCTestCase {
     )
     private lazy var bucketWithTwoRetires = BucketFixtures.createBucket(
         bucketId: BucketId(uniqueIdentifierGenerator.generate()),
-        bucketPayload: .runIosTests(runIosTestsPayload)
+        bucketPayloadContainer: .runIosTests(runIosTestsPayload)
     )
     
     private let testingResultFixtures: TestingResultFixtures = TestingResultFixtures()

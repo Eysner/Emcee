@@ -38,7 +38,7 @@ final class BucketQueueTests: XCTestCase {
             testEntries: testEntries
         )
         return BucketFixtures.createBucket(
-            bucketPayload: .runIosTests(payload),
+            bucketPayloadContainer: .runIosTests(payload),
             workerCapabilityRequirements: workerCapabilityRequirements
         )
     }

@@ -34,7 +34,7 @@ final class TestingResultAcceptorTests: XCTestCase {
     
     func test___reports_both_original_and_additional_lost_results___and_reenqueues_lost_tests() {
         let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
-        let bucket = BucketFixtures.createBucket(bucketPayload: .runIosTests(runIosTestsPayload))
+        let bucket = BucketFixtures.createBucket(bucketPayloadContainer: .runIosTests(runIosTestsPayload))
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),

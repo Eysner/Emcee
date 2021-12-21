@@ -31,7 +31,7 @@ final class SingleBucketResultAcceptorTests: XCTestCase {
     
     func test___accepting_result_with_known_bucket_id_and_matching_worker_id() {
         let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
-        let bucket = BucketFixtures.createBucket(bucketPayload: .runIosTests(runIosTestsPayload))
+        let bucket = BucketFixtures.createBucket(bucketPayloadContainer: .runIosTests(runIosTestsPayload))
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),

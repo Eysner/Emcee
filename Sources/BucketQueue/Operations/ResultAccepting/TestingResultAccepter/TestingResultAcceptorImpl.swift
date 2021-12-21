@@ -104,7 +104,7 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
         try testEntries.forEach { testEntry in
             let newBucket = try originalBucket.with(
                 newBucketId: BucketId(uniqueIdentifierGenerator.generate()),
-                newPayload: .runIosTests(
+                newPayloadContainer: .runIosTests(
                     originalRunIosTestsPayload.with(
                         testEntries: [testEntry]
                     )

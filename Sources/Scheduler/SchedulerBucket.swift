@@ -10,19 +10,19 @@ import RunnerModels
 public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let analyticsConfiguration: AnalyticsConfiguration
     public let bucketId: BucketId
-    public let bucketPayload: BucketPayload
+    public let bucketPayloadContainer: BucketPayloadContainer
     
     public var description: String {
-        return "<\((type(of: self))) \(bucketId) \(bucketPayload)>"
+        return "<\((type(of: self))) \(bucketId) \(bucketPayloadContainer)>"
     }
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
         bucketId: BucketId,
-        bucketPayload: BucketPayload
+        bucketPayloadContainer: BucketPayloadContainer
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.bucketId = bucketId
-        self.bucketPayload = bucketPayload
+        self.bucketPayloadContainer = bucketPayloadContainer
     }
 }

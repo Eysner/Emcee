@@ -11,16 +11,16 @@ import WorkerCapabilitiesModels
 public final class BucketFixtures {
     public static func createBucket(
         bucketId: BucketId = BucketId(value: "BucketFixturesFixedBucketId"),
-        bucketPayload: BucketPayload? = nil,
+        bucketPayloadContainer: BucketPayloadContainer? = nil,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     ) -> Bucket {
-        let bucketPayload = bucketPayload ?? .runIosTests(Self.createRunIosTestsPayload())
+        let bucketPayloadContainer = bucketPayloadContainer ?? .runIosTests(Self.createRunIosTestsPayload())
         
         return Bucket.newBucket(
             bucketId: bucketId,
             analyticsConfiguration: AnalyticsConfiguration(),
             workerCapabilityRequirements: workerCapabilityRequirements,
-            payload: bucketPayload
+            payloadContainer: bucketPayloadContainer
         )
     }
     

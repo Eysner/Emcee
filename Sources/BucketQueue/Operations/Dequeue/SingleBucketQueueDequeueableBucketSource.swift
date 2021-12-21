@@ -38,7 +38,7 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
             let payloadToDequeueOrNil = testHistoryTracker.enqueuedPayloadToDequeue(
                 workerId: workerId,
                 queue: bucketQueueHolder.allEnqueuedBuckets.compactMap {
-                    switch $0.bucket.payload {
+                    switch $0.bucket.payloadContainer {
                     case .runIosTests(let runIosTestsPayload):
                         return EnqueuedRunIosTestsPayload(
                             bucketId: $0.bucket.bucketId,

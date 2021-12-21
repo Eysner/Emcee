@@ -1,6 +1,6 @@
 import Foundation
 
-public enum BucketPayload: Codable, CustomStringConvertible, Hashable {
+public enum BucketPayloadContainer: Codable, CustomStringConvertible, Hashable {
     case runIosTests(RunIosTestsPayload)
 
     public var description: String {

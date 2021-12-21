@@ -83,35 +83,39 @@ public final class Scheduler {
                 analyticsConfiguration: bucket.analyticsConfiguration
             )
             logger.debug("Data Source returned bucket: \(bucket)")
-            self.runTestsFromFetchedBucket(bucket: bucket, logger: logger)
+            self.runFetchedBucket(bucket: bucket, logger: logger)
         }
     }
     
-    private func runTestsFromFetchedBucket(
+    private func runFetchedBucket(
         bucket: SchedulerBucket,
         logger: ContextualLogger
     ) {
         do {
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
-            let runTestsInBucketAfterAcquiringResources = BlockOperation {
+            let runTestsInBucketAfterAcquiringResources = BlockOperation { [weak self] in
+                guard let strongSelf = self else {
+                    return logger.error("`self` died unexpectedly")
+                }
+                
                 do {
                     let bucketResult: BucketResult
-                    switch bucket.bucketPayload {
+                    switch bucket.bucketPayloadContainer {
                     case .runIosTests(let runIosTestsPayload):
-                        bucketResult = self.executeIosTestsBucket(
+                        bucketResult = try strongSelf.createRunIosTestsPayloadExecutor().execute(
                             analyticsConfiguration: bucket.analyticsConfiguration,
                             bucketId: bucket.bucketId,
-                            runIosTestsPayload: runIosTestsPayload,
-                            logger: logger
+                            logger: logger,
+                            payload: runIosTestsPayload
                         )
                     }
-                    try self.resourceSemaphore.release(.of(runningTests: 1))
-                    self.schedulerDelegate?.scheduler(
-                        self,
+                    try strongSelf.resourceSemaphore.release(.of(runningTests: 1))
+                    strongSelf.schedulerDelegate?.scheduler(
+                        strongSelf,
                         obtainedBucketResult: bucketResult,
                         forBucket: bucket
                     )
-                    self.fetchAndRunBucket()
+                    strongSelf.fetchAndRunBucket()
                 } catch {
                     logger.error("Error running tests from fetched bucket with error: \(error). Bucket: \(bucket)")
                 }
@@ -123,163 +127,16 @@ public final class Scheduler {
         }
     }
     
-    // MARK: - Running iOS Tests
-    
-    private func executeIosTestsBucket(
-        analyticsConfiguration: AnalyticsConfiguration,
-        bucketId: BucketId,
-        runIosTestsPayload: RunIosTestsPayload,
-        logger: ContextualLogger
-    ) -> BucketResult {
-        let startedAt = dateProvider.dateSince1970ReferenceDate()
-        let testingResult: TestingResult
-        do {
-            testingResult = try runRetrying(
-                analyticsConfiguration: analyticsConfiguration,
-                runIosTestsPayload: runIosTestsPayload,
-                logger: logger,
-                numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetriesOnWorker()
-            )
-        } catch {
-            logger.error("Failed to execute bucket \(bucketId): \(error)")
-            testingResult = TestingResult(
-                testDestination: runIosTestsPayload.testDestination,
-                unfilteredResults: runIosTestsPayload.testEntries.map { testEntry -> TestEntryResult in
-                    TestEntryResult.withResult(
-                        testEntry: testEntry,
-                        testRunResult: TestRunResult(
-                            succeeded: false,
-                            exceptions: [
-                                TestException(
-                                    reason: "Emcee failed to execute this test: \(error)",
-                                    filePathInProject: #file,
-                                    lineNumber: #line,
-                                    relatedTestName: testEntry.testName
-                                )
-                            ],
-                            logs: [],
-                            duration: dateProvider.currentDate().timeIntervalSince(startedAt.date),
-                            startTime: startedAt,
-                            hostName: LocalHostDeterminer.currentHostAddress,
-                            simulatorId: UDID(value: "undefined")
-                        )
-                    )
-                }
-            )
-        }
-        return .testingResult(testingResult)
-    }
-    
-    /**
-     Runs tests in a given Bucket, retrying failed tests multiple times if necessary.
-     */
-    private func runRetrying(
-        analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunIosTestsPayload,
-        logger: ContextualLogger,
-        numberOfRetries: UInt
-    ) throws -> TestingResult {
-        let firstRun = try runBucketOnce(
-            analyticsConfiguration: analyticsConfiguration,
-            runIosTestsPayload: runIosTestsPayload,
-            testsToRun: runIosTestsPayload.testEntries,
-            logger: logger
-        )
-        
-        guard numberOfRetries > 0 else { return firstRun }
-        
-        var lastRunResults = firstRun
-        var results = [firstRun]
-        for retryNumber in 0 ..< numberOfRetries {
-            let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
-            if failedTestEntriesAfterLastRun.isEmpty {
-                logger.debug("No failed tests after last retry, so nothing to run.")
-                break
-            }
-            logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-            logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(numberOfRetries) attempts")
-            lastRunResults = try runBucketOnce(
-                analyticsConfiguration: analyticsConfiguration,
-                runIosTestsPayload: runIosTestsPayload,
-                testsToRun: failedTestEntriesAfterLastRun,
-                logger: logger
-            )
-            results.append(lastRunResults)
-        }
-        
-        return try TestingResult.byMerging(testingResults: results)
-    }
-    
-    private func runBucketOnce(
-        analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunIosTestsPayload,
-        testsToRun: [TestEntry],
-        logger: ContextualLogger
-    ) throws -> TestingResult {
-        let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
-            key: OnDemandSimulatorPoolKey(
-                developerDir: runIosTestsPayload.developerDir,
-                testDestination: runIosTestsPayload.testDestination
-            )
-        )
-        
-        let specificMetricRecorderProvider: SpecificMetricRecorderProvider = try di.get()
-        let specificMetricRecorder = try specificMetricRecorderProvider.specificMetricRecorder(
-            analyticsConfiguration: analyticsConfiguration
-        )
-
-        let allocatedSimulator = try simulatorPool.allocateSimulator(
-            dateProvider: dateProvider,
-            logger: logger,
-            simulatorOperationTimeouts: runIosTestsPayload.simulatorOperationTimeouts,
-            version: version,
-            globalMetricRecorder: try di.get()
-        )
-        defer { allocatedSimulator.releaseSimulator() }
-        
-        try di.get(SimulatorSettingsModifier.self).apply(
-            developerDir: runIosTestsPayload.developerDir,
-            simulatorSettings: runIosTestsPayload.simulatorSettings,
-            toSimulator: allocatedSimulator.simulator
-        )
-        
-        let runner = Runner(
-            dateProvider: dateProvider,
-            developerDirLocator: try di.get(),
-            fileSystem: try di.get(),
-            logger: logger,
-            pluginEventBusProvider: try di.get(),
-            runnerWasteCollectorProvider: try di.get(),
-            specificMetricRecorder: specificMetricRecorder,
-            tempFolder: try di.get(),
-            testRunnerProvider: try di.get(),
-            uniqueIdentifierGenerator: try di.get(),
-            version: version,
-            waiter: try di.get()
-        )
-
-        let runnerResult = try runner.runOnce(
-            entriesToRun: testsToRun,
-            configuration: RunnerConfiguration(
-                buildArtifacts: runIosTestsPayload.buildArtifacts,
-                developerDir:runIosTestsPayload.developerDir,
-                environment: runIosTestsPayload.testExecutionBehavior.environment,
-                lostTestProcessingMode: .reportError,
-                persistentMetricsJobId: analyticsConfiguration.persistentMetricsJobId,
-                pluginLocations: runIosTestsPayload.pluginLocations,
-                simulator: allocatedSimulator.simulator,
-                simulatorSettings: runIosTestsPayload.simulatorSettings,
-                testTimeoutConfiguration: runIosTestsPayload.testTimeoutConfiguration
-            )
-        )
-        
-        runnerResult.testEntryResults.filter { $0.isLost }.forEach {
-            logger.debug("Lost result for \($0)")
-        }
-        
-        return TestingResult(
-            testDestination: runIosTestsPayload.testDestination,
-            unfilteredResults: runnerResult.testEntryResults
+    private func createRunIosTestsPayloadExecutor() throws -> RunIosTestsPayloadExecutor {
+        RunIosTestsPayloadExecutor(
+            dateProvider: try di.get(),
+            globalMetricRecorder: try di.get(),
+            onDemandSimulatorPool: try di.get(),
+            runnerProvider: try di.get(),
+            simulatorSettingsModifier: try di.get(),
+            specificMetricRecorderProvider: try di.get(),
+            version: try di.get()
         )
     }
+    
 }

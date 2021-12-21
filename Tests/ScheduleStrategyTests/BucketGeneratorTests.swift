@@ -98,7 +98,7 @@ final class BucketGeneratorTests: XCTestCase {
         XCTAssertEqual(buckets.count, 3)
         
         for bucket in buckets {
-            switch bucket.payload {
+            switch bucket.payloadContainer {
             case .runIosTests(let runIosTestsPayload):
                 assert { runIosTestsPayload.testEntries } equals: {
                     expectedBucketEntries

@@ -70,7 +70,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
         
         let bucket = BucketFixtures.createBucket(
-            bucketPayload: .runIosTests(runIosTestsPayload),
+            bucketPayloadContainer: .runIosTests(runIosTestsPayload),
             workerCapabilityRequirements: [
                 WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
             ]
@@ -111,7 +111,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
         
         let bucket = BucketFixtures.createBucket(
-            bucketPayload: .runIosTests(runIosTestsPayload),
+            bucketPayloadContainer: .runIosTests(runIosTestsPayload),
             workerCapabilityRequirements: [
                 WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
             ]
