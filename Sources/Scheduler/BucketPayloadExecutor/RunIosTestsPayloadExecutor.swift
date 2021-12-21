@@ -9,9 +9,7 @@ import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 
-public final class RunIosTestsPayloadExecutor: BucketPayloadExecutor {
-    public typealias T = RunIosTestsPayload
-    
+public final class RunIosTestsPayloadExecutor {
     private let dateProvider: DateProvider
     private let globalMetricRecorder: GlobalMetricRecorder
     private let onDemandSimulatorPool: OnDemandSimulatorPool

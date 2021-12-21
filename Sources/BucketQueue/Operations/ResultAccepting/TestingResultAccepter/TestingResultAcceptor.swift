@@ -6,7 +6,7 @@ import QueueModels
 public protocol TestingResultAcceptor {
     func acceptTestingResult(
         dequeuedBucket: DequeuedBucket,
-        runIosTestsPayload: RunIosTestsPayload,
+        bucketPayloadWithTests: BucketPayloadWithTests,
         testingResult: TestingResult
     ) throws -> TestingResult
 }

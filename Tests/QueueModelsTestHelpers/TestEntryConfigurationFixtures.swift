@@ -47,7 +47,7 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(buildArtifacts: BuildArtifacts) -> Self {
+    public func with(buildArtifacts: IosBuildArtifacts) -> Self {
         self.buildArtifacts = buildArtifacts
         return self
     }

@@ -29,7 +29,7 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
     
     public func acceptTestingResult(
         dequeuedBucket: DequeuedBucket,
-        runIosTestsPayload: RunIosTestsPayload,
+        bucketPayloadWithTests: BucketPayloadWithTests,
         testingResult: TestingResult
     ) throws -> TestingResult {
         let bucket = dequeuedBucket.enqueuedBucket.bucket
@@ -37,7 +37,7 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
         
         try reenqueueLostResults(
             bucket: bucket,
-            runIosTestsPayload: runIosTestsPayload,
+            bucketPayloadWithTests: bucketPayloadWithTests,
             testingResult: testingResult,
             workerId: workerId
         )
@@ -45,7 +45,7 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
         let acceptResult = try testHistoryTracker.accept(
             testingResult: testingResult,
             bucketId: bucket.bucketId,
-            numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries,
+            numberOfRetries: bucketPayloadWithTests.testExecutionBehavior.numberOfRetries,
             workerId: workerId
         )
         
@@ -54,8 +54,7 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
         
         try reenqueue(
             testEntries: acceptResult.testEntriesToReenqueue,
-            originalBucket: dequeuedBucket.enqueuedBucket.bucket,
-            originalRunIosTestsPayload: runIosTestsPayload
+            originalBucket: dequeuedBucket.enqueuedBucket.bucket
         )
         
         return acceptResult.testingResult
@@ -63,12 +62,12 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
     
     private func reenqueueLostResults(
         bucket: Bucket,
-        runIosTestsPayload: RunIosTestsPayload,
+        bucketPayloadWithTests: BucketPayloadWithTests,
         testingResult: TestingResult,
         workerId: WorkerId
     ) throws {
         let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
-        let expectedTestEntries = Set(runIosTestsPayload.testEntries)
+        let expectedTestEntries = Set(bucketPayloadWithTests.testEntries)
         
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {
@@ -79,22 +78,20 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
                     unfilteredResults: lostTestEntries.map { .lost(testEntry: $0) }
                 ),
                 bucketId: bucket.bucketId,
-                numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries,
+                numberOfRetries: bucketPayloadWithTests.testExecutionBehavior.numberOfRetries,
                 workerId: workerId
             )
             
             try reenqueue(
                 testEntries: lostResult.testEntriesToReenqueue,
-                originalBucket: bucket,
-                originalRunIosTestsPayload: runIosTestsPayload
+                originalBucket: bucket
             )
         }
     }
     
     private func reenqueue(
         testEntries: [TestEntry],
-        originalBucket: Bucket,
-        originalRunIosTestsPayload: RunIosTestsPayload
+        originalBucket: Bucket
     ) throws {
         guard !testEntries.isEmpty else { return }
         
@@ -102,13 +99,17 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
         var testEntryByBucketId = [BucketId: TestEntry]()
         
         try testEntries.forEach { testEntry in
+            let newPayloadContainer: BucketPayloadContainer
+            switch originalBucket.payloadContainer {
+            case .runAndroidTests(let payload):
+                newPayloadContainer = .runAndroidTests(payload.with(testEntries: [testEntry]))
+            case .runIosTests(let payload):
+                newPayloadContainer = .runIosTests(payload.with(testEntries: [testEntry]))
+            }
+            
             let newBucket = try originalBucket.with(
                 newBucketId: BucketId(uniqueIdentifierGenerator.generate()),
-                newPayloadContainer: .runIosTests(
-                    originalRunIosTestsPayload.with(
-                        testEntries: [testEntry]
-                    )
-                )
+                newPayloadContainer: newPayloadContainer
             )
             buckets.append(newBucket)
             testEntryByBucketId[newBucket.bucketId] = testEntry

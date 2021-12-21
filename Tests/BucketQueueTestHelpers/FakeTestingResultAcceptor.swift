@@ -4,10 +4,10 @@ import Foundation
 import QueueModels
 
 open class FakeTestingResultAcceptor: TestingResultAcceptor {
-    public var handler: (DequeuedBucket, RunIosTestsPayload, TestingResult) throws -> TestingResult
+    public var handler: (DequeuedBucket, BucketPayloadWithTests, TestingResult) throws -> TestingResult
     
     public init(
-        handler: @escaping (DequeuedBucket, RunIosTestsPayload, TestingResult) throws -> TestingResult = { _, _, testingResult in
+        handler: @escaping (DequeuedBucket, BucketPayloadWithTests, TestingResult) throws -> TestingResult = { _, _, testingResult in
             testingResult
         }
     ) {
@@ -16,9 +16,9 @@ open class FakeTestingResultAcceptor: TestingResultAcceptor {
     
     public func acceptTestingResult(
         dequeuedBucket: DequeuedBucket,
-        runIosTestsPayload: RunIosTestsPayload,
+        bucketPayloadWithTests: BucketPayloadWithTests,
         testingResult: TestingResult
     ) throws -> TestingResult {
-        try handler(dequeuedBucket, runIosTestsPayload, testingResult)
+        try handler(dequeuedBucket, bucketPayloadWithTests, testingResult)
     }
 }

@@ -1651,6 +1651,7 @@ let package = Package(
                 "DeveloperDirModels",
                 "EmceeDI",
                 "EmceeLogging",
+                "EmceeTypes",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "ListeningSemaphore",
                 "LocalHostDeterminer",

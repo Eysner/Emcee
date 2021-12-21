@@ -10,9 +10,9 @@ public protocol TestHistoryTracker {
     /// This may result in returning `nil` value.
     func enqueuedPayloadToDequeue(
         workerId: WorkerId,
-        queue: [EnqueuedRunIosTestsPayload],
+        queue: [EnqueuedRunTestsPayload],
         workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
-    ) -> EnqueuedRunIosTestsPayload?
+    ) -> EnqueuedRunTestsPayload?
     
     /// Associates the provided result for the given `bucketId`, indicating that results are coming from `workerId`.
     /// - Note: `numberOfRetries` is ORIGINAL retry count for tests in the bucket with `bucketId`. Do not decrement this value.

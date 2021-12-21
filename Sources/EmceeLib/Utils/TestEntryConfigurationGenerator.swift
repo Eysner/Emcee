@@ -57,7 +57,7 @@ public final class TestEntryConfigurationGenerator {
     }
 
     private func testEntriesMatching(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         testToRun: TestToRun
     ) -> [TestEntry] {
         return validatedEntries

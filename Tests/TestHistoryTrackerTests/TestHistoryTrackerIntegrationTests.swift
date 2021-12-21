@@ -156,7 +156,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     func test___bucketToDequeue___is_not_nil___initially() {
         // Given
         let queue = [
-            EnqueuedRunIosTestsPayload(
+            EnqueuedRunTestsPayload(
                 bucketId: createBucketId(),
                 testDestination: TestDestinationFixtures.testDestination,
                 testEntries: [TestEntryFixtures.testEntry()],
@@ -179,7 +179,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // Given
         let bucketId = createBucketId()
         
-        let payload = EnqueuedRunIosTestsPayload(
+        let payload = EnqueuedRunTestsPayload(
             bucketId: bucketId,
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: [TestEntryFixtures.testEntry()],
@@ -209,7 +209,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // Given
         let bucketId = createBucketId()
         
-        let payload = EnqueuedRunIosTestsPayload(
+        let payload = EnqueuedRunTestsPayload(
             bucketId: bucketId,
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: [TestEntryFixtures.testEntry()],
@@ -222,7 +222,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             workerId: failingWorkerId
         )
         
-        let notFailedPayload = EnqueuedRunIosTestsPayload(
+        let notFailedPayload = EnqueuedRunTestsPayload(
             bucketId: createBucketId(),
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: [TestEntryFixtures.testEntry(className: "notFailed")],
@@ -246,7 +246,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // Given
         let bucketId = createBucketId()
         
-        let payload = EnqueuedRunIosTestsPayload(
+        let payload = EnqueuedRunTestsPayload(
             bucketId: bucketId,
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: [TestEntryFixtures.testEntry()],
@@ -281,7 +281,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         _ = tracker.enqueuedPayloadToDequeue(
             workerId: workerId,
             queue: [
-                EnqueuedRunIosTestsPayload(
+                EnqueuedRunTestsPayload(
                     bucketId: bucketId,
                     testDestination: TestDestinationFixtures.testDestination,
                     testEntries: [TestEntryFixtures.testEntry()],

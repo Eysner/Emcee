@@ -85,7 +85,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         bucketQueueHolder.insert(enqueuedBuckets: [enqueuedBucket], position: 0)
         
         testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, _ in
-            EnqueuedRunIosTestsPayload(
+            EnqueuedRunTestsPayload(
                 bucketId: bucket.bucketId,
                 testDestination: runIosTestsPayload.testDestination,
                 testEntries: runIosTestsPayload.testEntries,
@@ -117,7 +117,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
             ]
         )
         
-        let payload = EnqueuedRunIosTestsPayload(
+        let payload = EnqueuedRunTestsPayload(
             bucketId: bucket.bucketId,
             testDestination: runIosTestsPayload.testDestination,
             testEntries: runIosTestsPayload.testEntries,

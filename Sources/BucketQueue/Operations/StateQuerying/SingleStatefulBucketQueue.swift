@@ -23,17 +23,23 @@ public final class SingleStatefulBucketQueue: StatefulBucketQueue {
                     key: dequeuedBucket.workerId,
                     elements: runIosTestsPayload.testEntries.map { $0.testName }
                 )
+            case .runAndroidTests(let runAndroidTestsPayload):
+                dequeuedTests.append(
+                    key: dequeuedBucket.workerId,
+                    elements: runAndroidTestsPayload.testEntries.map { $0.testName }
+                )
             }
         }
         
         let enqueuedTests = enqueuedBuckets
-            .compactMap { enqueuedBucket -> RunIosTestsPayload in
+            .flatMap { enqueuedBucket -> [TestEntry] in
                 switch enqueuedBucket.bucket.payloadContainer {
                 case .runIosTests(let runIosTestsPayload):
-                    return runIosTestsPayload
+                    return runIosTestsPayload.testEntries
+                case .runAndroidTests(let runAndroidTestsPayload):
+                    return runAndroidTestsPayload.testEntries
                 }
             }
-            .flatMap(\.testEntries)
             .map(\.testName)
         
         return RunningQueueState(

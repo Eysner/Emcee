@@ -5,7 +5,7 @@ import PluginSupport
 import SimulatorPoolModels
 
 public struct RunnerConfiguration {
-    public let buildArtifacts: BuildArtifacts
+    public let buildArtifacts: IosBuildArtifacts
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let lostTestProcessingMode: LostTestProcessingMode
@@ -16,7 +16,7 @@ public struct RunnerConfiguration {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     
     public init(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         developerDir: DeveloperDir,
         environment: [String: String],
         lostTestProcessingMode: LostTestProcessingMode,

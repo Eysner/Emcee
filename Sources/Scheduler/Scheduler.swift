@@ -108,6 +108,13 @@ public final class Scheduler {
                             logger: logger,
                             payload: runIosTestsPayload
                         )
+                    case .runAndroidTests(let runAndroidTestsPayload):
+                        bucketResult = try strongSelf.createRunAndroidTestsPayloadExecutor().execute(
+                            analyticsConfiguration: bucket.analyticsConfiguration,
+                            bucketId: bucket.bucketId,
+                            logger: logger,
+                            payload: runAndroidTestsPayload
+                        )
                     }
                     try strongSelf.resourceSemaphore.release(.of(runningTests: 1))
                     strongSelf.schedulerDelegate?.scheduler(
@@ -136,6 +143,12 @@ public final class Scheduler {
             simulatorSettingsModifier: try di.get(),
             specificMetricRecorderProvider: try di.get(),
             version: try di.get()
+        )
+    }
+    
+    private func createRunAndroidTestsPayloadExecutor() throws -> RunAndroidTestsPayloadExecutor {
+        RunAndroidTestsPayloadExecutor(
+            dateProvider: try di.get()
         )
     }
     

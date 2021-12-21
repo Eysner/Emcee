@@ -77,18 +77,15 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
             )
         ]
         
-        switch dequeuedBucket.enqueuedBucket.bucket.payloadContainer {
-        case .runIosTests(let runIosTestsPayload):
-            bucketAndTestMetrics.append(
-                DequeueTestsMetric(
-                    workerId: workerId,
-                    version: version,
-                    queueHost: LocalHostDeterminer.currentHostAddress,
-                    numberOfTests: runIosTestsPayload.testEntries.count,
-                    timestamp: dateProvider.currentDate()
-                )
+        bucketAndTestMetrics.append(
+            DequeueTestsMetric(
+                workerId: workerId,
+                version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
+                numberOfTests: dequeuedBucket.enqueuedBucket.bucket.payloadContainer.payloadWithTests.testEntries.count,
+                timestamp: dateProvider.currentDate()
             )
-        }
+        )
         
         do {
             try specificMetricRecorderProvider.specificMetricRecorder(

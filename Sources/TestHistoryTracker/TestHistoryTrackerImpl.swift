@@ -19,13 +19,13 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     public func enqueuedPayloadToDequeue(
         workerId: WorkerId,
-        queue: [EnqueuedRunIosTestsPayload],
+        queue: [EnqueuedRunTestsPayload],
         workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
-    ) -> EnqueuedRunIosTestsPayload? {
-        let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedRunIosTestsPayload in
+    ) -> EnqueuedRunTestsPayload? {
+        let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedRunTestsPayload in
             !bucketWasFailingOnWorker(
-                bucketId: enqueuedRunIosTestsPayload.bucketId,
-                testEntries: enqueuedRunIosTestsPayload.testEntries,
+                bucketId: enqueuedRunTestsPayload.bucketId,
+                testEntries: enqueuedRunTestsPayload.testEntries,
                 workerId: workerId
             )
         }
@@ -35,10 +35,10 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         } else {
             let computedWorkerIdsInWorkingCondition = workerIdsInWorkingCondition()
             
-            let bucketThatWasFailingOnEveryWorkerOrNil = queue.first { enqueuedRunIosTestsPayload in
+            let bucketThatWasFailingOnEveryWorkerOrNil = queue.first { enqueuedRunTestsPayload in
                 bucketWasFailingOnEveryWorker(
-                    bucketId: enqueuedRunIosTestsPayload.bucketId,
-                    testEntries: enqueuedRunIosTestsPayload.testEntries,
+                    bucketId: enqueuedRunTestsPayload.bucketId,
+                    testEntries: enqueuedRunTestsPayload.testEntries,
                     workerIdsInWorkingCondition: computedWorkerIdsInWorkingCondition
                 )
             }

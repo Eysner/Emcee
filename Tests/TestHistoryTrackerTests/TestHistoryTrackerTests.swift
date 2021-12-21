@@ -21,7 +21,7 @@ final class TestHistoryTests: XCTestCase {
     private let fixedIdentifier = "identifier"
     private let firstTest = TestEntryFixtures.testEntry(className: "first")
     private let secondTest = TestEntryFixtures.testEntry(className: "second")
-    private lazy var twoTestsPayload = EnqueuedRunIosTestsPayload(
+    private lazy var twoTestsPayload = EnqueuedRunTestsPayload(
         bucketId: BucketId(fixedIdentifier),
         testDestination: TestDestinationFixtures.testDestination,
         testEntries: [firstTest, secondTest],
@@ -60,7 +60,7 @@ final class TestHistoryTests: XCTestCase {
         )
         
         // When
-        let otherPayload = EnqueuedRunIosTestsPayload(
+        let otherPayload = EnqueuedRunTestsPayload(
             bucketId: BucketId("otherBucketId"),
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: [TestEntryFixtures.testEntry(className: "other")],

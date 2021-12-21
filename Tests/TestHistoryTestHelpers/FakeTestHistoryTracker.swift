@@ -7,7 +7,7 @@ import TestHistoryTracker
 
 open class FakeTestHistoryTracker: TestHistoryTracker {
     public init(
-        enqueuedPayloadToDequeueProvider: @escaping (WorkerId, [EnqueuedRunIosTestsPayload], [WorkerId]) -> EnqueuedRunIosTestsPayload? = {  _, _, _ in nil },
+        enqueuedPayloadToDequeueProvider: @escaping (WorkerId, [EnqueuedRunTestsPayload], [WorkerId]) -> EnqueuedRunTestsPayload? = {  _, _, _ in nil },
         validateWorkerIdsInWorkingCondition: @escaping ([WorkerId]) -> () = { _ in },
         acceptValidator: @escaping (TestingResult, BucketId, UInt, WorkerId) throws -> TestHistoryTrackerAcceptResult = { testingResult, _, _, _ in
             TestHistoryTrackerAcceptResult(
@@ -24,15 +24,15 @@ open class FakeTestHistoryTracker: TestHistoryTracker {
     }
     
     public var validateWorkerIdsInWorkingCondition: ([WorkerId]) -> ()
-    public var enqueuedPayloadToDequeueProvider: (WorkerId, [EnqueuedRunIosTestsPayload], [WorkerId]) -> EnqueuedRunIosTestsPayload?
+    public var enqueuedPayloadToDequeueProvider: (WorkerId, [EnqueuedRunTestsPayload], [WorkerId]) -> EnqueuedRunTestsPayload?
     public var acceptValidator: (TestingResult, BucketId, UInt, WorkerId) throws -> TestHistoryTrackerAcceptResult
     public var willReenqueueHandler: (BucketId, [BucketId: TestEntry]) -> ()
     
     public func enqueuedPayloadToDequeue(
         workerId: WorkerId,
-        queue: [EnqueuedRunIosTestsPayload],
+        queue: [EnqueuedRunTestsPayload],
         workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
-    ) -> EnqueuedRunIosTestsPayload? {
+    ) -> EnqueuedRunTestsPayload? {
         validateWorkerIdsInWorkingCondition(workerIdsInWorkingCondition())
         return enqueuedPayloadToDequeueProvider(workerId, queue, workerIdsInWorkingCondition())
     }

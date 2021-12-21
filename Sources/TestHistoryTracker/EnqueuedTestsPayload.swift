@@ -3,7 +3,7 @@ import QueueModels
 import RunnerModels
 import SimulatorPoolModels
 
-public struct EnqueuedRunIosTestsPayload: Hashable {
+public struct EnqueuedRunTestsPayload: Hashable {
     public let bucketId: BucketId
     public let testDestination: TestDestination
     public let testEntries: [TestEntry]
